@@ -1,7 +1,5 @@
 # Configuring Git for a good workflow
 
-## Git branch autocompletion
-
 ## Rich commit messages: Setting the default commit message editor
 
 Often we make commits this way: `git commit -m "here is my commit message"`. But sometimes we want rich, multi-line commit messages, and, later, for things like git rebase we will want to be able to write & read commit messages in our editor, and make rich, multi-line messages.
@@ -80,4 +78,4 @@ file:/Users/adamcee/.gitconfig  core.editor=code
 file:.git/config        core.repositoryformatversion=0
 ```
 
-## Aliasing common git commands
+This should help get you started in managing your global git config settings on your local dev machine.
