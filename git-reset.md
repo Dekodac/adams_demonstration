@@ -127,7 +127,11 @@ Run `cat .gitignore` to confirm the file looks right, and, let's add (or "stage"
 
 Now run `git status`. Everything should look good. Let's run `git commit`, write a commit message, and confirm with `git status` that our repo looks good.
 
-Finally, let's push our code up to github in case something happens to our laptop! `git push`
+Let's push our code up to github in case something happens to our laptop! `git push`
+
+Finally, let's use the [Git Graph VS Code Extension](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph) to visually look at our commits. Use the VS Code command palette (cmd-shift-p or ctrl-shift-p) and type "git graph view":
+
+!![vs-code-git-graph](./page-resources/vs-code-git-graph-command.png)
 
 
 
