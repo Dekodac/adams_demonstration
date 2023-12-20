@@ -26,12 +26,24 @@ Just like other git commands, we can use *glob patterns* with `git reset` -- suc
 
 We'll see how to use `git reset --staged` safely in this scenario.
 
+### Implementation
+
 Let's start writing our backend for our School. Install our python dependencies and get some skeleton code going for our school API.
+
+**First let's create an `initial-setsetup` branch**: `git checkout -b initial-setup`
 
 ```bash
 python -m venv .venv
 pip install flask flask_cors
 pip freeze > requirements.txt
+```
+
+Eventually we'll have a frontend and backend, so let's make directories for both, an empty README, and navigate to the `backend/` directory to start work:
+
+```bash
+touch README.md
+mkdir frontend backend
+cd backend
 ```
 
 Now make the backend skeleton code. A basic "hello world" endpoint and a "get_students" endpoint with some fake data:
@@ -117,6 +129,8 @@ We can "un-stage" our `.venv` directory without deleting it or any of our code. 
 
 Because of this, we will *tell git to only un-stage the `.venv` directory*.
 
+We will **not** do `git reset --staged .`, as, the "." pattern will un-stage *all* files and if we make a mistake and use `--hard` instead of `--staged` we'll lose all our work!
+
 Run this command: `git reset --staged .venv`. We have just told git to un-stage the `.venv` directory, and only the `.venv` directory. Even if we screw up the reset command, being more specific limits the risk. Let's run `git status` and see how we did.
 
 Good! The `venv` directory is un-staged and back in our "working directory", or "working tree", where we edit our code and such.
@@ -140,6 +154,160 @@ Finally, let's use the [Git Graph VS Code Extension](https://marketplace.visuals
 ## Scenario 2: I commited code I don't want but haven't pushed yet
 
 We will see how to safely use `git reset --soft` to handle this.
+
+### Implementation
+
+Let's update our flask app to use the `python-dotenv` library so we can load environment variables from an `.env` file.
+
+And, let's do this on a new branch. Use `git status` to confirm our current branch is `initial-setup`, then *branch off that branch* like so:
+
+```bash
+git checkout -b backend-use-dotenv
+```
+
+Perfect! Now install the dependency and update `requirements.txt`, and confirm it's correct:
+
+```bash
+pip install python-dotenv
+pip freeze > requirements.txt
+cat requirements.txt
+```
+
+Now let's create a `.env` file. Inside we'll put a `FLASK_ENV` var to tell if we're running our app in "dev" or "prod", and an imaginary `MY_SECRET_API_KEY` var. Create the `.env` file and put this in it:
+
+```bash
+FLASK_ENV=dev
+MY_SECRET_API_KEY=xyz123
+```
+
+Now let's use `FLASK_ENV`` to tell the flask app whether "debug mode" should be enabled or not. In `app.py` add the following, right after our other imports:
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv() # Loads vars in .env file so we can now use `os.environ['MY_VAR]`
+print(os.environ['FLASK_ENV'])
+print(os.environ['MY_SECRET_API_KEY'])
+```
+
+Now use `FLASK_ENV` to set debug mode. At the bottom of `app.py` add this code and **modify** our `app.run()` call to look like this:
+
+```python
+IS_DEBUG_ENABLED = False
+if os.environ['FLASK_ENV'] == "dev":
+    IS_DEBUG_ENABLED = True
+
+app.run(debug=IS_DEBUG_ENABLED)
+```
+
+Run `python app.py` to confirm it works.
+
+Now add and commit our code! Run:
+
+```bash
+git add .
+git commit -m 'Added python dotenv, using for debug mode'
+git status
+git log
+```
+
+You should see something like:
+
+```bash
+On branch initial-setup
+Your branch is ahead of 'origin/initial-setup' by 1 commit.
+  (use "git push" to publish your local commits)
+
+commit e46b18c6f3a74c1fc347ec9a831f7a9f63eda06e (HEAD -> initial-setup)
+Author: Adam Cahan <adam.cahan@gmail.com>
+Date:   Wed Dec 20 07:36:51 2023 -0600
+
+    Added python dotenv, using for debug mode
+```
+
+Our working tree is clean, we are good-to go. Uh-oh! We ... committed the `.env` file.
+
+### Use `git reset --soft`
+
+We can use `git reset --soft HEAD~1`. We will:
+
+1. Make a backup branch in case we make a mistake
+2. "Un-commit" our **most recent** commit.
+3. **Not** lose or destroy this code. Our most recent commit will become **staged**
+4. Use `git reset --staged` to **un-stage** the `.env` file
+5. Make a commit with the code we want.
+
+But ...
+
+#### What is `HEAD`?
+
+Every commit in git has a *commit hash*, a uniqu ID. That's the long string we see by each commit message when we run `git log`.
+
+`HEAD` is an example of what git calls a **ref**, which is short for *reference*. `HEAD` is just a var pointing to the most recent *commit hash* on our current branch
+
+Git stores everything for each local repo in the `.git` directory for each project.
+
+Let's look at it, it's in our project root:
+
+```bash
+cd ..
+cd .git
+ls
+```
+
+#### Caution: **DON'T** mess with the .git/ dir
+
+> Unless you know what you're doing and why, you should almost never need to directly modify anything in `.git` or delete the directory. If you do find yourself about to do this and you're not 100%, definitely get help from someone else before proceeding.
+
+You should see this:
+
+```bash
+COMMIT_EDITMSG  ORIG_HEAD       description     index           logs            packed-refs
+HEAD            config          hooks           info            objects         refs
+```
+
+Now run `cat HEAD`, you'll see:
+
+```bash
+ref: refs/heads/initial-setup
+```
+
+Interesting! The `HEAD` file has our branch name. Hmm, there is a `refs/` dir, let's look at that. Run `ls refs`:
+
+```bash
+heads   remotes tags
+```
+
+Now run these commands:
+
+```bash
+ls refs/heads
+ls refs/heads/initial-setup
+cat refs/heads/initial-setup
+```
+
+You should see:
+
+```bash
+initial-setup   main
+refs/heads/initial-setup
+e46b18c6f3a74c1fc347ec9a831f7a9f63eda06e
+```
+
+**NOTE: Your actual commit hash will be different.**
+
+We just learned how git internally stores the "ref" for the `HEAD` of each branch! It's just a text file that has the **commit hash** of the **most recent** commit for that branch.
+
+Whenever we switch branches, git just grabs the right `HEAD` ref for that branch.
+
+#### What is `HEAD~1`?
+
+That is part of the mystery! We now understand `HEAD`. But the command we are about to run is:
+
+```bash
+git reset --soft HEAD~1
+```
 
 ## Scenario 3: I committed code I don't want **and** pushed it **Caution!!!**
 
@@ -170,3 +338,6 @@ This scenario requires extra caution and we will see how to safely handle it usi
 ## References
 
 [Git Reset and "The Three Trees"](https://www.atlassian.com/git/tutorials/undoing-changes/git-reset)
+
+
+[Git refs - what you need to know](https://www.atlassian.com/git/tutorials/refs-and-the-reflog)
