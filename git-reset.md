@@ -413,7 +413,7 @@ git push
 
 And now we have removed the `.env` file from our last commit! And done so safely.
 
-## Scenario 3: I committed code I don't want **and** pushed it **Caution!!!**
+## Scenario 3: I committed code I don't want **and** pushed it -- **Caution!!!**
 
 This scenario requires extra caution and we will see how to safely handle it using `git reset --soft` and a force push.
 
