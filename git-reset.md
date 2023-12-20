@@ -4,23 +4,27 @@
 
 We will start building our School app frontend and backend, and, make some mistakes along the way. We'll `git add` ("stage") code we don't want, commit staged changes we don't want, and push commits with code we don't want to github (our remote). And we'll learn how to safely use `git reset` to handle each of these changes.
 
+These are the scenario's we'll see how to handle:
+
 1. "I staged (added) code I don't want to commit, but I didn't commit it yet." --> `git reset --staged`
 
 2. "I committed code I don't want, but didn't push it yet." --> `git reset --soft`
 
 3. "I committed and pushed code I don't want" --> `git reset --soft` plus a force push.
 
-And, for each scenario, **using a backup branch**
+And, for each scenario, **being specific in our git commands** and **making backups**, to give us an extra degree of safety.
 
 ## Git reset
 
 `git reset` is a very powerful command. Use it with caution, and take time to confirm you understand the command you're going to run. Soon you will build up familiarity and be able to use it more fluidly.
 
-We will focus on `git reset --staged`, `git reset --soft`, and with caution, `git reset --hard`.
+We will focus on `git reset --staged`, `git reset --soft`, and with caution, force-pushing, and, `git reset --hard`.
 
 Just like other git commands, we can use *glob patterns* with `git reset` -- such as `git reset *.js`
 
-## "I added code I don't want to commit"
+## Scenario 1: "I added code I don't want to commit"
+
+We'll see how to use `git reset --staged` safely in this scenario.
 
 Let's start writing our backend for our School. Install our python dependencies and get some skeleton code going for our school API.
 
@@ -133,23 +137,28 @@ Finally, let's use the [Git Graph VS Code Extension](https://marketplace.visuals
 
 !![vs-code-git-graph](./page-resources/vs-code-git-graph-command.png)
 
+## Scenario 2: I commited code I don't want but haven't pushed yet
 
+We will see how to safely use `git reset --soft` to handle this.
 
+## Scenario 3: I committed code I don't want **and** pushed it **Caution!!!**
 
-### I commited but have not pushed yet
+This scenario requires extra caution and we will see how to safely handle it using `git reset --soft` and a force push.
 
-We will use `git reset --soft`
+## Conceptual Review
 
-### I committed and pushed **Caution!!!**
+### The "Three Trees": Working Directory, Staging Directory / Index, HEAD
 
-We will use `git reset --soft`, and then **force push**. 
+#### Working Directory
 
-## Make a "backup" branch
+#### The Index or "Staging Area"
 
-## `git reset --soft`
+#### HEAD - most recent commit snapshot
 
-## `git reset --mixed`
+### What is a commit? What is a commit hash?
 
-## `git reset --hard`
+### What is HEAD?
 
-## Review
+## References
+
+[Git Reset and "The Three Trees"](https://www.atlassian.com/git/tutorials/undoing-changes/git-reset)
