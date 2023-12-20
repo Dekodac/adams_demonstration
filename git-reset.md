@@ -4,9 +4,23 @@
 
 We will start building our School app frontend and backend, and, make some mistakes along the way. We'll `git add` ("stage") code we don't want, commit staged changes we don't want, and push commits with code we don't want to github (our remote). And we'll learn how to safely use `git reset` to handle each of these changes.
 
-These are the scenario's we'll see how to handle:
+The commands we'll examine are:
 
-1. "I staged (added) code I don't want to commit, but I didn't commit it yet." --> `git reset --staged`
+- `git restore`
+- `git reset`
+- `git log`
+- `git diff`
+
+The concepts we'll look at are:
+
+- `HEAD`
+- Commit hashes & Refs
+- "The Three Trees"
+- Force-pushing
+
+The scenario's we'll see how to handle:
+
+1. "I staged (added) code I don't want to commit, but I didn't commit it yet." --> `git restore --staged`
 
 2. "I committed code I don't want, but didn't push it yet." --> `git reset --soft`
 
@@ -18,13 +32,13 @@ And, for each scenario, **being specific in our git commands** and **making back
 
 `git reset` is a very powerful command. Use it with caution, and take time to confirm you understand the command you're going to run. Soon you will build up familiarity and be able to use it more fluidly.
 
-We will focus on `git reset --staged`, `git reset --soft`, and with caution, force-pushing, and, `git reset --hard`.
+We will focus on `git restore --staged`, `git reset --soft`, and with caution, force-pushing, and, `git reset --hard`.
 
 Just like other git commands, we can use *glob patterns* with `git reset` -- such as `git reset *.js`
 
 ## Scenario 1: "I added code I don't want to commit"
 
-We'll see how to use `git reset --staged` safely in this scenario.
+We'll see how to use `git restore --staged` safely in this scenario.
 
 ### Implementation
 
@@ -119,7 +133,7 @@ Uh-oh! We were in the zone, and without intending too, commited something we don
 
 No worries!
 
-### Use `git reset --staged` to un-stage changes
+### Use `git restore --staged` to un-stage changes
 
 We can "un-stage" our `.venv` directory without deleting it or any of our code. Two warnings:
 
@@ -129,9 +143,9 @@ We can "un-stage" our `.venv` directory without deleting it or any of our code. 
 
 Because of this, we will *tell git to only un-stage the `.venv` directory*.
 
-We will **not** do `git reset --staged .`, as, the "." pattern will un-stage *all* files and if we make a mistake and use `--hard` instead of `--staged` we'll lose all our work!
+We will **not** do `git restore --staged .`, as, the "." pattern will un-stage *all* files and if we make a mistake and use `reset --hard` instead of `restore --staged` we'll lose all our work!
 
-Run this command: `git reset --staged .venv`. We have just told git to un-stage the `.venv` directory, and only the `.venv` directory. Even if we screw up the reset command, being more specific limits the risk. Let's run `git status` and see how we did.
+Run this command: `git restore --staged .venv`. We have just told git to un-stage the `.venv` directory, and only the `.venv` directory. Even if we screw up the reset command, being more specific limits the risk. Let's run `git status` and see how we did.
 
 Good! The `venv` directory is un-staged and back in our "working directory", or "working tree", where we edit our code and such.
 
@@ -309,33 +323,123 @@ That is part of the mystery! We now understand `HEAD`. But the command we are ab
 git reset --soft HEAD~1
 ```
 
+What is the `~1` part? The tilde (`~`) and the number indicate **how many commits back** this command should be run.
+
+Let's use the `git diff` command, which *compares* commits, to examine this. Git diff lets us compare **between commits**, and between our "Staged Area" or Index code and commits. Run:
+
+```
+cd ../backend
+echo "print('hello') > foo.py
+git diff HEAD
+```
+
+We just created a file `foo.py`, but it's not staged yet. Diffing against HEAD (most recent commit shows nothing). Run:
+
+```bash
+git add foo.py
+git diff HEAD
+```
+
+You should see:
+
+```
+diff --git a/backend/foo.py b/backend/foo.py
+new file mode 100644
+index 0000000..ed0f110
+--- /dev/null
++++ b/backend/foo.py
+@@ -0,0 +1 @@
++print('hello')
+```
+
+Our Index (staged/added code), has a *difference* relative to our most recent commit, now that we've added `foo.py`.
+
+Run `git diff HEAD~1`, and then `git diff HEAD~2`. You should see a bunch of code printed out. This is the *difference* between our index/current head and the previous commit, or the difference from 2 commits back, and so on.
+
+Use the git graph VS Code plugin to help visualize our branch history:
+
+![initial-setup-branch](./page-resources/git-graph-initial-setup-2-commits.png)
+
+Go ahead and `rm foo.py` and run `git diff HEAD~1` and `git diff HEAD~2` again - we are comparing our `HEAD` commit against other previous commits on the branch!
+
+#### Running git reset --soft
+
+Now that we understand our command, let's use it! But first, a backup branch in case we error:
+
+```bash
+git status
+git checkout -b wip-initial-setup-backup
+git checkout -
+```
+
+`git checkout -` is a useful command that switches us back to the last branch we used. We now have a backup branch, in case our reset command goes wrong. Run:
+
+```bash
+git reset --soft HEAD
+git status
+```
+
+You should see:
+
+```bash
+On branch initial-setup
+Your branch is up to date with 'origin/initial-setup'.
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        new file:   .env
+        modified:   app.py
+        modified:   requirements.txt
+```
+
+In git graph you should see:
+
+![initial-setup-reset-soft](./page-resources/initial-setup-reset-soft.png)
+
+We have:
+
+- Un-commited our last commit on our branch without losing code. We can now modify it.
+- We still have that commit on a backup branch, in case something goes wrong.
+
+Run:
+
+```bash
+git restore --staged .env
+git add app.py
+git add requirements.txt
+git commit -m 'Add dotenv to flask'
+git push
+```
+
+And now we have removed the `.env` file from our last commit! And done so safely.
+
 ## Scenario 3: I committed code I don't want **and** pushed it **Caution!!!**
 
 This scenario requires extra caution and we will see how to safely handle it using `git reset --soft` and a force push.
 
-## Concepts
-
-### The "Three Trees": Working Directory, Staging Directory / Index, HEAD
-
-#### Working Directory
-
-#### The Index or "Staging Area"
-
-#### HEAD - most recent commit snapshot
-
-### What is a commit? What is a commit hash?
-
-### What is HEAD?
-
 ## Review
+
+### Concepts
+
+- The "Three Trees": Working Directory, Staging Directory / Index, HEAD
+
+- Working Directory
+
+- The Index or "Staging Area"
+
+- What is a commit? What is a commit hash?
+
+- What is HEAD?
 
 ### Mini-quiz
 
-1. Does `git reset --staged` ever delete code entirely from our repo? Does it remove code from the "Working Directory"?
+1. Does `git restore --staged` ever delete code entirely from our repo? Does it remove code from the "Working Directory"?
 2. Does `git reset --soft` ever delete code entirely from our repo? Does it remove code from HEAD, the commit snapshot?
 3. Does `git reset --hard` ever delete code entirely from our repo?
 
 ## References
+
+[Git restore](https://stackoverflow.com/questions/58003030/what-is-the-git-restore-command-and-what-is-the-difference-between-git-restor)
 
 [Git Reset and "The Three Trees"](https://www.atlassian.com/git/tutorials/undoing-changes/git-reset)
 

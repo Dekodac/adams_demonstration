@@ -25,6 +25,6 @@ We will fake and hardcode our data in our flask app, and write the various backe
 
 ## Topics Covered
 
-### 1. ["I committed code I don't want" - using `git reset` to safely un-stage or un-commit code](./git-reset.md)
+### 1. ["I committed code I don't want" - using `git restore` and `git reset` to safely un-stage or un-commit code](./git-reset.md)
 
 We'll also review & discuss "The Three Trees" - the "Working Directory", "Staging Directory" or Index, and the Commit Tree (`HEAD`)
