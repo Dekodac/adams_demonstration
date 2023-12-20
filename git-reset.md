@@ -145,7 +145,7 @@ We will see how to safely use `git reset --soft` to handle this.
 
 This scenario requires extra caution and we will see how to safely handle it using `git reset --soft` and a force push.
 
-## Conceptual Review
+## Concepts
 
 ### The "Three Trees": Working Directory, Staging Directory / Index, HEAD
 
@@ -158,6 +158,14 @@ This scenario requires extra caution and we will see how to safely handle it usi
 ### What is a commit? What is a commit hash?
 
 ### What is HEAD?
+
+## Review
+
+### Mini-quiz
+
+1. Does `git reset --staged` ever delete code entirely from our repo? Does it remove code from the "Working Directory"?
+2. Does `git reset --soft` ever delete code entirely from our repo? Does it remove code from HEAD, the commit snapshot?
+3. Does `git reset --hard` ever delete code entirely from our repo?
 
 ## References
 
