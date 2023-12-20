@@ -1,17 +1,4 @@
-# Git Concepts: Review & Practice
-
-## Prequesites
-
-- Install the [git graph VS Code Extension](https://marketplace.visualstudio.com/items?itemName=mhutchie.git-graph)
-- This is not an "Intro to git" - you should have some basic experience, and we will dive a bit deeper.
-
-## Goals
-
-You will learn a number of git techniques which will improve your coding productivity and workflow. Our focus will be more on working on your "own" branch, and we will get into collaborative work, branching strategies, and some basic merge conflict strategies later.
-
-These conceptual fundamentals & techniques will be useful when using git collaboratively on a team as well as when working by yourself.
-
-## Preview: Let's make a "feature branch", push it, PR it, and merge it!
+# Notes & Outline: Git Concepts: Review & Practice
 
 ## Git Concepts Review
 
