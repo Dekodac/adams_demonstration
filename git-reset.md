@@ -405,9 +405,9 @@ Run:
 
 ```bash
 git restore --staged .env
-git add app.py
-git add requirements.txt
+git status
 git commit -m 'Add dotenv to flask'
+git status
 git push
 ```
 
